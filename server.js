@@ -13,13 +13,14 @@ const socket = io(server)
 
 const BACKEND_URL = 'http://localhost:8080'
 
-const players = []
+const { tokens, players } = getData()
 
 socket.on('connection', client => {
   console.log(`player ${client.id} has connected`)
 
   client.on('initialData', (callback) => {
-    callback(getData())
+    console.log('sending initial data')
+    callback({ tokens, players })
   })
 
   client.on('movePlayer', (x, y, callback) => {
