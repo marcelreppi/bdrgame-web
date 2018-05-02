@@ -22,8 +22,9 @@ function Connector(id, regex, payoff) {
   }
 }
 
-function Player(id, x, y) {
-  this.id = id
+let nextPlayerId = 0
+function Player(x, y) {
+  this.id = nextPlayerId++
   this.x = x
   this.y = y
   this.balance = 0
@@ -41,5 +42,5 @@ exports.getData = function() {
     }
     tokens.push( new Token(i, Math.random(), Math.random(), connectors) )
   }
-  return { tokens, player: new Player(0, 0.5, 0.5) }
+  return { tokens, players: [ new Player(0.5, 0.5), new Player(0.3, 0.3), new Player(0.7, 0.7)] }
 }
