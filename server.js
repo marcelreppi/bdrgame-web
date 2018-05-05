@@ -27,8 +27,11 @@ socket.on('connection', client => {
       })
   })
 
-  client.on('movePlayer', (x, y, callback) => {
-    console.log(`player ${client.id} wants to move to ${x} ${y}`)
+  client.on('movePlayer', (id, x, y, callback) => {
+    console.log(`player ${id} wants to move to ${x} ${y}`)
+    axios.put(BACKEND_URL + `/players/${id}/move`, { x, y })
+      .then( res => console.log(`player ${id} successfully move to ${x} ${y}`) )
+      .catch( err => console.error(`player ${id} move to ${x} ${y} failed`) )
     // contact backend and check the move
     callback(true)
   })
