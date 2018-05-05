@@ -14,6 +14,8 @@ const BACKEND_URL = 'https://bdrgame-backend.herokuapp.com'
 
 // const { tokens, players } = getData()
 
+app.use(bodyParser.json());
+
 socket.on('connection', client => {
   console.log(`player ${client.id} has connected`)
   client.on('initialData', (callback) => {
@@ -35,14 +37,12 @@ socket.on('connection', client => {
     // contact backend and check the move
     callback(true)
   })
-})
 
-app.use(bodyParser.json());
-
-app.post('/players/move', (req, res) => {
-  console.log('move player')
-  socket.emit('playerMove', req.body )
-  res.end('moved player')
+  app.post('/players/move', (req, res) => {
+    console.log('move player')
+    client.emit('playerMove', req.body )
+    res.end('moved player')
+  })
 })
 
 // app.use('/', routes)
