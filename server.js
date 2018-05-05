@@ -4,23 +4,27 @@ const bodyParser = require('body-parser');
 const http = require('http')
 const io = require('socket.io');
 
-const routes = require('./api')
-const { getData } = require('./data')
+const { addTokenProps } = require('./data')
 
 const app = express()
 const server = http.createServer(app);
 const socket = io(server)
 
-const BACKEND_URL = 'http://localhost:8080'
+const BACKEND_URL = 'https://bdrgame-backend.herokuapp.com'
 
-const { tokens, players } = getData()
+// const { tokens, players } = getData()
 
 socket.on('connection', client => {
   console.log(`player ${client.id} has connected`)
-
   client.on('initialData', (callback) => {
     console.log('sending initial data')
-    callback({ tokens, players })
+
+    const tokenPromise = axios.get(BACKEND_URL + '/tokens')
+    const playerPromise = axios.get(BACKEND_URL + '/players')
+    Promise.all([tokenPromise, playerPromise])
+      .then(([tokenRes, playerRes]) => {
+        callback({ tokens: tokenRes.data.map(addTokenProps), players: playerRes.data })
+      })
   })
 
   client.on('movePlayer', (x, y, callback) => {
@@ -30,9 +34,15 @@ socket.on('connection', client => {
   })
 })
 
-
 app.use(bodyParser.json());
-app.use('/', routes)
+
+app.post('/players/move', (req, res) => {
+  console.log('move player')
+  socket.emit('playerMove', req.body )
+  res.end('moved player')
+})
+
+// app.use('/', routes)
 
 const PORT = process.env.PORT || 8000
 server.listen(PORT)
