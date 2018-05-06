@@ -12,8 +12,6 @@ const io = require('socket.io')(server)
 const BACKEND_URL = 'https://bdrgame-backend.herokuapp.com'
 // const BACKEND_URL = 'http://localhost:8080'
 
-// const { tokens, players } = getData()
-
 app.use(bodyParser.json());
 
 io.on('connection', socket => {
@@ -50,7 +48,7 @@ app.post('/players/move', (req, res) => {
 
 app.post('/tokens', (req, res) => {
   console.log('new token')
-  io.emit('newToken', addTokenProps(req.body))
+  io.emit('newTokens', req.body.map(addTokenProps))
   res.end()
 })
 
