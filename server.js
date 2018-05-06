@@ -10,6 +10,7 @@ const server = http.createServer(app);
 const io = require('socket.io')(server)
 
 const BACKEND_URL = 'https://bdrgame-backend.herokuapp.com'
+// const BACKEND_URL = 'http://localhost:8080'
 
 // const { tokens, players } = getData()
 
@@ -33,18 +34,24 @@ io.on('connection', socket => {
     axios.put(BACKEND_URL + `/players/${id}/move`, { x, y })
       .then( () => {
         console.log(`player ${id} successfully move to ${x} ${y}`)
-        socket.broadcast.emit('playerMove', { id, x, y })
-        callback(true)
+        // socket.broadcast.emit('playerMove', { id, x, y })
+        callback()
       })
       .catch( err => console.error(`player ${id} move to ${x} ${y} failed`) )
     // contact backend and check the move
   })
+})
 
-  app.post('/players/move', (req, res) => {
-    console.log('move player')
-    socket.emit('playerMove', req.body )
-    res.end('moved player')
-  })
+app.post('/players/move', (req, res) => {
+  console.log('move player')
+  io.emit('playerMove', req.body )
+  res.end()
+})
+
+app.post('/tokens', (req, res) => {
+  console.log('new token')
+  io.emit('newToken', addTokenProps(req.body))
+  res.end()
 })
 
 // app.use('/', routes)
