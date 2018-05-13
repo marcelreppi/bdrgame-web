@@ -21,9 +21,14 @@ io.on('connection', socket => {
 
     const tokenPromise = axios.get(BACKEND_URL + '/tokens')
     const playerPromise = axios.get(BACKEND_URL + '/players')
-    Promise.all([tokenPromise, playerPromise])
-      .then(([tokenRes, playerRes]) => {
-        callback({ tokens: tokenRes.data.map(addTokenProps), players: playerRes.data })
+    const connectionPromise = axios.get(BACKEND_URL + '/connections')
+    Promise.all([tokenPromise, playerPromise, connectionPromise])
+      .then(([tokenRes, playerRes, connectionRes]) => {      
+        callback({ 
+          tokens: tokenRes.data.map(addTokenProps),
+          players: playerRes.data,
+          connections: connectionRes.data
+        })
       })
   })
 
@@ -32,27 +37,48 @@ io.on('connection', socket => {
     axios.put(BACKEND_URL + `/players/${id}/move`, { x, y })
       .then( () => {
         console.log(`player ${id} successfully move to ${x} ${y}`)
-        // socket.broadcast.emit('playerMove', { id, x, y })
         callback()
       })
       .catch( err => console.error(`player ${id} move to ${x} ${y} failed`) )
     // contact backend and check the move
   })
+
+  socket.on('newConnection', (data, callback) => {
+    // const { playerId, tokenId1, connectorId1, tokenId2, connectorId2 } = data
+    console.log('client requested new connection')
+    axios.post(BACKEND_URL + '/tokens/connect', data)
+      .then( () => callback() )
+      .catch( err => console.error(err) )
+  })
+
+  socket.on('disconnect', () => {
+    console.log(`player ${socket.id} has disconnected`)
+  })
 })
 
 app.post('/players/move', (req, res) => {
-  console.log('move player')
-  io.emit('playerMove', req.body )
+  // console.log('move player')
+  io.emit('movePlayer', req.body )
   res.end()
 })
 
 app.post('/tokens', (req, res) => {
-  console.log('new token')
+  // console.log('new token')
   io.emit('newTokens', req.body.map(addTokenProps))
   res.end()
 })
 
-// app.use('/', routes)
+app.put('/tokens', (req, res) => {
+  // console.log('updated tokens')
+  io.emit('updatedTokens', req.body)
+  res.end()
+})
+
+app.post('/tokens/connect', (req, res) => {
+  // console.log('new connection')
+  io.emit('newConnection', req.body)
+  res.end()
+})
 
 const PORT = process.env.PORT || 8000
 server.listen(PORT)
