@@ -22,12 +22,15 @@ io.on('connection', socket => {
     const tokenPromise = axios.get(BACKEND_URL + '/tokens')
     const playerPromise = axios.get(BACKEND_URL + '/players')
     const connectionPromise = axios.get(BACKEND_URL + '/connections')
-    Promise.all([tokenPromise, playerPromise, connectionPromise])
-      .then(([tokenRes, playerRes, connectionRes]) => {      
+    const timePromise = axios.get(BACKEND_URL + '/time')
+    Promise.all([tokenPromise, playerPromise, connectionPromise, timePromise])
+      .then(([tokenRes, playerRes, connectionRes, timeRes]) => {      
         callback({ 
           tokens: tokenRes.data.map(addTokenProps),
           players: playerRes.data,
-          connections: connectionRes.data
+          connections: connectionRes.data, 
+          roundTime: timeRes.data.roundTime,
+          roundDuration: timeRes.data.roundDuration
         })
       })
   })
@@ -77,6 +80,12 @@ app.put('/tokens', (req, res) => {
 app.post('/tokens/connect', (req, res) => {
   // console.log('new connection')
   io.emit('newConnection', req.body)
+  res.end()
+})
+
+app.post('/rounds', (req, res) => {
+  // console.log('new round')
+  io.emit('newRound', req.body)
   res.end()
 })
 
