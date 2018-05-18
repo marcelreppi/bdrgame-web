@@ -54,14 +54,41 @@ io.on('connection', socket => {
       .catch( err => console.error(err) )
   })
 
+  const clientToPlayerMapping = {}
+  socket.on('playerChosen', (playerId, callback) => {
+    console.log(`player ${playerId} has been chosen`)
+    clientToPlayerMapping[socket.id] = playerId
+    axios.post(BACKEND_URL + `/players/${playerId}/select`)
+      .then( res => io.emit('updatePlayers', [res.data]))
+      .catch( err => console.error(err) )
+  })
+
+  socket.on('newPlayer', (callback) => {
+    axios.post(BACKEND_URL + '/players')
+      .then( res => io.emit('newPlayer', res.data))
+      .catch( err => console.error(err) )
+  })
+
   socket.on('disconnect', () => {
     console.log(`player ${socket.id} has disconnected`)
+    const playerId = clientToPlayerMapping[socket.id]
+    if (playerId !== undefined) {
+      delete clientToPlayerMapping[socket.id]
+      axios.post(BACKEND_URL + `/players/${playerId}/unselect`)
+        .then( res => io.emit('updatePlayers', [res.data]))
+        .catch( err => console.error(err) )
+    }
   })
 })
 
 app.post('/players/move', (req, res) => {
   // console.log('move player')
-  io.emit('movePlayer', req.body )
+  io.emit('movePlayer', req.body)
+  res.end()
+})
+
+app.put('/players', (req, res) => {
+  io.emit('updatePlayers', req.body)
   res.end()
 })
 
