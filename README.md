@@ -1,5 +1,7 @@
-BDR Game Webserver
+# BDR Game Webserver
 
-Setup
+### How to get the webserver running
 - npm i
 - npm start
+
+Data is served by backend

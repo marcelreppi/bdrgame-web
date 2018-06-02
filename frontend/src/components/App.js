@@ -13,8 +13,8 @@ class App extends Component {
     super(props)
 
     // Connect to webserver socket
-    // this.socket = io('http://localhost:8000');
-    this.socket = io('https://bdrgame-web.herokuapp.com/');
+    // this.socket = io('http://localhost:8000'); // Use this URL when connecting to local webserver
+    this.socket = io('https://bdrgame-web.herokuapp.com/'); // Use this URL when connecting to public heroku webserver
       
     this.state = {
       chosenPlayerId: null,

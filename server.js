@@ -3,7 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const http = require('http')
 
-const { addTokenProps } = require('./data')
+const { addTokenProps } = require('./helpers')
 
 const app = express()
 const server = http.createServer(app);
@@ -15,6 +15,8 @@ const BACKEND_URL = 'https://bdrgame-backend.herokuapp.com'
 app.use('/', express.static('./frontend/build'))
 
 app.use(bodyParser.json());
+
+/////////////////////////////// FRONTEND SOCKET SETUP ///////////////////////////////////
 
 io.on('connection', socket => {
   console.log(`player ${socket.id} has connected`)
@@ -45,11 +47,9 @@ io.on('connection', socket => {
         callback()
       })
       .catch( err => console.error(`player ${id} move to ${x} ${y} failed`) )
-    // contact backend and check the move
   })
 
   socket.on('newConnection', (data, callback) => {
-    // const { playerId, tokenId1, connectorId1, tokenId2, connectorId2 } = data
     console.log('client requested new connection')
     axios.post(BACKEND_URL + '/tokens/connect', data)
       .then( () => callback() )
@@ -83,29 +83,40 @@ io.on('connection', socket => {
   })
 })
 
+///////////////////////// API ROUTES /////////////////////////////
+
+// Expects: [ { id, x, y, balance, isSelected } ]
+// Check backend PlayerDAO for data model
+app.put('/players', (req, res) => {
+  // console.log('update players')
+  io.emit('updatePlayers', req.body)
+  res.end()
+})
+
+// Expects: [ { playerId, x, y } ]
 app.post('/players/move', (req, res) => {
   // console.log('move player')
   io.emit('movePlayer', req.body)
   res.end()
 })
 
-app.put('/players', (req, res) => {
-  io.emit('updatePlayers', req.body)
-  res.end()
-})
-
+// Expects: [ { id, nextConnectorId, x, y, connectors: [...] } ]
+// Check backend TokenDAO for data model
 app.post('/tokens', (req, res) => {
   // console.log('new token')
   io.emit('newTokens', req.body.map(addTokenProps))
   res.end()
 })
 
+// Expects: [ { id, nextConnectorId, x, y, connectors: [...] } ]
+// Check backend TokenDAO for data model
 app.put('/tokens', (req, res) => {
   // console.log('updated tokens')
   io.emit('updatedTokens', req.body)
   res.end()
 })
 
+// Expects: [ { playerId, tokenId, connectorId, oppositeTokenId, oppositeConnectorId } ]
 app.post('/tokens/connect', (req, res) => {
   // console.log('new connection')
   io.emit('newConnection', req.body)
@@ -114,10 +125,10 @@ app.post('/tokens/connect', (req, res) => {
 
 app.post('/rounds', (req, res) => {
   // console.log('new round')
-  io.emit('newRound', req.body)
+  io.emit('newRound')
   res.end()
 })
 
 const PORT = process.env.PORT || 8000
 server.listen(PORT)
-console.log('listening on port ' + PORT)
+console.log('Listening on port ' + PORT)
