@@ -4,4 +4,4 @@
 - npm i
 - npm start
 
-Data is served by backend
+Data is served by backend (https://github.com/marcelreppi/bdrgame-backend)
