@@ -1,0 +1,33 @@
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.player-list {
+  display: flex;
+  justify-content: center;
+}
+
+.player-creation {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  margin: auto;
+}
+
+label, button {
+  margin-right: 5px;
+  margin-left: 5px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.round-info {
+  display: flex;
+  justify-content: center;
+}
+
+.select-button-col {
+  padding: auto;
+  border: none;
+}

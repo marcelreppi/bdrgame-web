@@ -1,0 +1,29 @@
+.token-info {
+  padding-left: 10px;
+}
+
+.connector-table {
+  overflow-x:auto;
+}
+
+th, td {
+  padding: 5px;
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+.connect-button-col {
+  vertical-align: middle;
+  padding: 0px;
+  padding-top: 5px;
+  padding-left: 5px;
+  border: none;
+}
+
+.connect-button {
+  height: 100%;
+}
+
+.highlight {
+  background: rgb(204, 0, 255);
+}

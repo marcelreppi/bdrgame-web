@@ -1,0 +1,26 @@
+.Control {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.token-title {
+  margin-top: 10px;
+}
+
+.action-buttons {
+  margin: 20px;
+}
+
+.player-info {
+  padding-left: 10px;
+}
+
+.round-time {
+  display: inline-block;
+  width: 35px;
+}
+
+button {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}

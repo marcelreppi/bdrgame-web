@@ -4,7 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "npm run build && nodemon server.js",
+    "build": "cd frontend/ && npm run build",
+    "server": "nodemon server.js"
   },
   "keywords": [],
   "author": "",

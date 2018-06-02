@@ -12,6 +12,8 @@ const io = require('socket.io')(server)
 const BACKEND_URL = 'https://bdrgame-backend.herokuapp.com'
 // const BACKEND_URL = 'http://localhost:8080'
 
+app.use('/', express.static('./frontend/build'))
+
 app.use(bodyParser.json());
 
 io.on('connection', socket => {
