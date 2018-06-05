@@ -14,7 +14,7 @@ class App extends Component {
 
     // Connect to webserver socket
     // this.socket = io('http://localhost:8000'); // Use this URL when connecting to local webserver
-    this.socket = io('https://bdrgame-web.herokuapp.com/'); // Use this URL when connecting to public heroku webserver
+    this.socket = io('https://bdrgame.herokuapp.com/'); // Use this URL when connecting to public heroku webserver
       
     this.state = {
       chosenPlayerId: null,
