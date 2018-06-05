@@ -122,6 +122,9 @@ class Canvas extends React.Component {
   }
 
   addPlayerToStage(player) {
+    // if (player.id !== this.props.chosenPlayerId) {
+    //   return
+    // }
     const texture = player.id === this.props.chosenPlayerId ? this.textures.activePlayer : this.textures.otherPlayer
     const playerSprite = new PIXI.Sprite(texture)
     playerSprite.anchor.x = 0.5
@@ -492,6 +495,25 @@ class Canvas extends React.Component {
     }
   }
 
+  stageOutOfBounds() {
+    // Get scaled stage range
+    const localScreenTopLeft = this.stage.toLocal(new PIXI.Point(0,0))
+    const localScreenBottomRight = this.stage.toLocal(new PIXI.Point(this.width, this.height))
+
+    // New local game borders
+    const left = localScreenTopLeft.x
+    const right = localScreenBottomRight.x
+    const top = localScreenTopLeft.y
+    const bottom = localScreenBottomRight.y
+
+    return (
+      left < -(this.width/2) ||
+      top < -(this.height/2) ||
+      right > this.width*1.5 ||
+      bottom > this.height*1.5
+    )
+  }
+
   onMovePlayer(event) {
     const localEventPoint = this.stage.toLocal(event.data.global)
     const newPlayerX = localEventPoint.x / this.width
@@ -526,9 +548,51 @@ class Canvas extends React.Component {
   onMouseMove(event) {
     event.preventDefault()
 
-    if(this.dragging){
-      this.stage.x += event.x - this.dragX
-      this.stage.y += event.y - this.dragY
+    if (this.dragging) {
+
+      if (this.stageOutOfBounds()) {
+        // Get scaled stage range
+        const localScreenTopLeft = this.stage.toLocal(new PIXI.Point(0,0))
+        const localScreenBottomRight = this.stage.toLocal(new PIXI.Point(this.width, this.height))
+
+        // New local game borders
+        const left = localScreenTopLeft.x
+        const right = localScreenBottomRight.x
+        const top = localScreenTopLeft.y
+        const bottom = localScreenBottomRight.y
+
+        if (left < -this.width/2) {
+          // Out of bounds on the left -> only allow movement towards right
+          if (event.x - this.dragX <= 0) {
+            this.stage.x += event.x - this.dragX
+          }
+        }
+
+        if (right > this.width*1.5) {
+          // Out of bounds on the right -> only allow movement towards left
+          if (event.x - this.dragX >= 0) {
+            this.stage.x += event.x - this.dragX
+          }
+        }
+
+        if (top < -this.height/2) {
+          // Out of bounds on the top -> only allow movement towards bottom
+          if (event.y - this.dragY <= 0) {
+            this.stage.y += event.y - this.dragY
+          }
+        }
+
+        if (bottom > this.height*1.5) {
+          // Out of bounds on the bottom -> only allow movement towards top
+          if (event.y - this.dragY >= 0) {
+            this.stage.y += event.y - this.dragY
+          }
+        }
+      } else {
+        this.stage.x += event.x - this.dragX
+        this.stage.y += event.y - this.dragY
+      }
+
       this.dragX = event.x
       this.dragY = event.y
 
@@ -560,11 +624,28 @@ class Canvas extends React.Component {
     const scaleBottomLimit = 0.7
     const scaleTopLimit = 7
     const nextScaleValue = this.stage.scale.x * zoomFactor
+
+    if (this.stageOutOfBounds() && !zoomIn) {
+      // prevent further zooming out
+      return
+    }
+
+    const oldPivot = this.stage.pivot
+    const oldPosition = this.stage.position
+    const oldScale = this.stage.scale
+
     if (nextScaleValue > scaleBottomLimit && nextScaleValue < scaleTopLimit) {
       this.stage.pivot = localEventPoint
       this.stage.position = eventPoint
       this.stage.scale.x *= zoomFactor
       this.stage.scale.y *= zoomFactor
+      
+      if (this.stageOutOfBounds()) {
+        this.stage.pivot = oldPivot
+        this.stage.position = oldPosition
+        this.stage.scale = oldScale
+      }
+
       this.updateStage(event.type)
       this.renderStage()
     } 
